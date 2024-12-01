@@ -22,7 +22,7 @@ pub fn parse_inputs(input: &str) -> (Vec<u32>, Vec<u32>) {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let ( mut left, mut right) = parse_inputs(input);
+    let (mut left, mut right) = parse_inputs(input);
     left.sort();
     right.sort();
     if left.len() != right.len() {
@@ -31,20 +31,20 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut sum = 0u32;
     for i in 0..left.len() {
         if left[i] > right[i] {
-            sum +=  left[i] - right[i];
+            sum += left[i] - right[i];
         } else {
-            sum +=  right[i] - left[i];
+            sum += right[i] - left[i];
         }
     }
     Some(sum)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let (  left, right) = parse_inputs(input);
+    let (left, right) = parse_inputs(input);
     let mut count_right: HashMap<u32, usize> = HashMap::new();
     let mut sum = 0u32;
     for i in right {
-        count_right.entry(i).and_modify(|n| *n+=1).or_insert(1);
+        count_right.entry(i).and_modify(|n| *n += 1).or_insert(1);
     }
     for i in left {
         if let Some(&num) = count_right.get(&i) {
