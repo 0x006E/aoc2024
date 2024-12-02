@@ -8,14 +8,13 @@ pub fn parse_inputs(input: &str) -> Vec<Vec<i32>> {
         let mut level: Vec<i32> = vec![];
         let nums_as_str = line.split_whitespace();
         for num_str in nums_as_str {
-                let num = num_str.parse::<i32>().unwrap();
-                level.push(num);
+            let num = num_str.parse::<i32>().unwrap();
+            level.push(num);
         }
         levels.push(level);
     }
     levels
 }
-
 
 pub fn part_one(input: &str) -> Option<u32> {
     let test_cases = parse_inputs(input);
@@ -37,7 +36,7 @@ pub fn is_sequence_safe(input: &[i32]) -> bool {
     let increasing = input[0] < input[1];
 
     for i in 1..input.len() {
-        let diff = input[i] - input[i-1];
+        let diff = input[i] - input[i - 1];
 
         match (increasing, diff) {
             (true, diff) if diff <= 0 || diff > 3 => return false,
@@ -48,7 +47,7 @@ pub fn is_sequence_safe(input: &[i32]) -> bool {
     true
 }
 
-pub fn check_safe_with_removal(levels:&[i32]) -> bool {
+pub fn check_safe_with_removal(levels: &[i32]) -> bool {
     if is_sequence_safe(levels) {
         return true;
     }
@@ -76,7 +75,6 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     Some(safe_cases)
 }
-
 
 #[cfg(test)]
 mod tests {
