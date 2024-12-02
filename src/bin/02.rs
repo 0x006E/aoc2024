@@ -41,20 +41,20 @@ pub fn is_sequence_safe(input: &[i32]) -> bool {
 
         match (increasing, diff) {
             (true, diff) if diff <= 0 || diff > 3 => return false,
-            (false, diff) if diff >= 0 || diff < -3 => return false,
+            (false, diff) if !(-3..0).contains(&diff) => return false,
             _ => continue,
         }
     }
     true
 }
 
-pub fn check_safe_with_removal(levels: &Vec<i32>) -> bool {
+pub fn check_safe_with_removal(levels:&[i32]) -> bool {
     if is_sequence_safe(levels) {
         return true;
     }
 
     for idx in 0..levels.len() {
-        let mut test_sequence = levels.clone();
+        let mut test_sequence = levels.to_owned();
         test_sequence.remove(idx);
 
         if is_sequence_safe(&test_sequence) {
