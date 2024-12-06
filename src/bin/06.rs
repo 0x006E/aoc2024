@@ -1,4 +1,5 @@
 use core::fmt;
+use rayon::prelude::*;
 use std::collections::HashSet;
 
 advent_of_code::solution!(6);
@@ -99,7 +100,11 @@ fn get_next_pos(p: (usize, usize), v: &mut [Vec<Objects>]) -> Option<&mut Object
     }
 }
 
-fn check_if_loop(mut matrix: Vec<Vec<Objects>>, position: (usize, usize), idx: (usize, usize)) -> (u32, bool) {
+fn check_if_loop(
+    mut matrix: Vec<Vec<Objects>>,
+    position: (usize, usize),
+    idx: (usize, usize),
+) -> (u32, bool) {
     let mut count = 0u32;
     matrix[idx.0][idx.1] = Objects::Obstacle;
     let mut current_position = position;
@@ -141,7 +146,7 @@ fn check_if_loop(mut matrix: Vec<Vec<Objects>>, position: (usize, usize), idx: (
             break;
         }
     }
-    (count,false)
+    (count, false)
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
@@ -158,7 +163,8 @@ pub fn part_one(input: &str) -> Option<u32> {
     let starting_direction = current_direction;
     while let Some(next_position) = add_tuple(current_position, current_direction) {
         if let Some(next_pos_obj) = get_next_pos(next_position, &mut matrix) {
-            if current_position == position && starting_direction == current_direction && count != 1 {
+            if current_position == position && starting_direction == current_direction && count != 1
+            {
                 panic!("Loop");
             }
             match next_pos_obj {
@@ -191,17 +197,30 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let (position, matrix) = parse_into_matrix(input);
-    let mut count = 0u32;
-    for (row_idx, row) in matrix.iter().enumerate() {
-        for (col_idx, col) in row.iter().enumerate() {
-            if let Objects::Path(false) = col {
-                let (_, loop_exist) = check_if_loop(matrix.clone(), position, (row_idx, col_idx));
-                if loop_exist {
-                    count += 1;
-                }
-            }
-        }
-    }
+
+    let count: u32 = matrix
+        .par_iter() // Parallel iterator over rows
+        .enumerate()
+        .map(|(row_idx, row)| {
+            row.par_iter() // Parallel iterator over columns
+                .enumerate()
+                .filter_map(|(col_idx, col)| {
+                    if let Objects::Path(false) = col {
+                        let (_, loop_exist) =
+                            check_if_loop(matrix.clone(), position, (row_idx, col_idx));
+                        if loop_exist {
+                            Some(1) // Count loops
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                })
+                .sum::<u32>() // Sum results within this row
+        })
+        .sum(); // Sum results across all rows
+
     Some(count)
 }
 
