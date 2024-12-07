@@ -199,17 +199,17 @@ pub fn part_two(input: &str) -> Option<u32> {
     let (position, matrix) = parse_into_matrix(input);
 
     let count: u32 = matrix
-        .par_iter() // Parallel iterator over rows
+        .iter()
         .enumerate()
         .map(|(row_idx, row)| {
-            row.par_iter() // Parallel iterator over columns
+            row.par_iter()
                 .enumerate()
                 .filter_map(|(col_idx, col)| {
                     if let Objects::Path(false) = col {
                         let (_, loop_exist) =
                             check_if_loop(matrix.clone(), position, (row_idx, col_idx));
                         if loop_exist {
-                            Some(1) // Count loops
+                            Some(1)
                         } else {
                             None
                         }
@@ -217,10 +217,9 @@ pub fn part_two(input: &str) -> Option<u32> {
                         None
                     }
                 })
-                .sum::<u32>() // Sum results within this row
+                .sum::<u32>()
         })
-        .sum(); // Sum results across all rows
-
+        .sum();
     Some(count)
 }
 
