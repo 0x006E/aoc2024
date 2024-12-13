@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use itertools::Itertools;
+use num_traits::Euclid;
+use std::collections::HashMap;
 
 advent_of_code::solution!(11);
 
@@ -19,7 +19,7 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 fn blink(num: u128, max_depth: u32, hash_map: &mut HashMap<(u128, u32), u64>) -> u64 {
-    let num_str = num.to_string();
+    let num_digits = num.checked_ilog10().unwrap_or(0) + 1;
     let mut count = 0u64;
     if let Some(v) = hash_map.get(&(num, max_depth)) {
         return *v;
@@ -30,12 +30,9 @@ fn blink(num: u128, max_depth: u32, hash_map: &mut HashMap<(u128, u32), u64>) ->
     }
     if num == 0 {
         count += blink(1, max_depth - 1, hash_map);
-    } else if num_str.len() % 2 == 0 {
-        let (left, right) = num_str.split_at(num_str.len() / 2);
-        let left_num = left.parse::<u64>().unwrap();
-        let right_num = right.parse::<u64>().unwrap();
-        count += blink(left_num as u128, max_depth - 1, hash_map)
-            + blink(right_num as u128, max_depth - 1, hash_map);
+    } else if num_digits % 2 == 0 {
+        let (left, right) = num.div_rem_euclid(&(10u128.pow(num_digits / 2)));
+        count += blink(left, max_depth - 1, hash_map) + blink(right, max_depth - 1, hash_map);
     } else {
         count += blink(num * 2024, max_depth - 1, hash_map);
     }
