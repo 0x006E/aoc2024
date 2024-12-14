@@ -7,7 +7,7 @@ use nom::{
     sequence::{pair, preceded, separated_pair},
     IResult,
 };
-use std::{str::FromStr, thread::sleep, time::Duration};
+use std::str::FromStr;
 advent_of_code::solution!(14);
 
 type Res<T, U> = IResult<T, U, nom::error::Error<T>>;
@@ -49,9 +49,8 @@ impl Robot {
     }
 }
 
-/// Parse the whole Advent of Code day 5 text file.
 pub fn parse_input(s: &str) -> Vec<Robot> {
-    let (remaining_input, lines) = separated_list1(line_ending, Robot::parse)(s).unwrap();
+    let (_, lines) = separated_list1(line_ending, Robot::parse)(s).unwrap();
     // assert!(remaining_input.is_empty());
     lines
 }
