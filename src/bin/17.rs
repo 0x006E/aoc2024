@@ -1,9 +1,8 @@
-use core::{fmt, panic};
+use core::panic;
 use std::{fmt::Debug, u64};
 
 use itertools::Itertools;
 use num_traits::pow;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 advent_of_code::solution!(17);
 
@@ -19,12 +18,12 @@ enum Instructions {
     CDV(u8),
 }
 
-fn parse_digits_from_string(input: &str) -> u32 {
+fn parse_digits_from_string(input: &str) -> u64 {
     input
         .chars()
         .filter(|c| c.is_numeric())
         .collect::<String>()
-        .parse::<u32>()
+        .parse::<u64>()
         .expect("to be good integer")
 }
 
@@ -64,14 +63,41 @@ pub fn part_one(input: &str) -> Option<String> {
 
 pub fn part_two(input: &str) -> Option<u64> {
     let mut lines = input.lines();
+    let (expected_output, instructions) = parse_instructions(lines.nth(4)?);
 
-    let (ins, instructions) = parse_instructions(lines.nth(4)?);
-    let final_reg_a = (0u64..=u64::MAX).into_par_iter().find_first(|&i| {
-        let out: Vec<u64> = run(&instructions, i);
-        out == ins
-    });
+    let mut result = u64::MAX;
 
-    final_reg_a
+    let mut inputs = (0..8).collect::<Vec<_>>();
+    let output_size = instructions.len() * 2;
+
+    // Based on https://topaz.github.io/paste/#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
+    for j in 0..output_size {
+        let mut next = vec![];
+
+        // check each input to see if it generates the correct output
+        for num in &inputs {
+            // reuse device by resetting internal values and check for current number
+            let out = run(&instructions, *num);
+
+            // if the generated output matches the suboutput so far
+            if expected_output[output_size - 1 - j..] == out {
+                // final output length reached, get minimum viable value
+                if out.len() == output_size {
+                    result = std::cmp::min(result, *num);
+                }
+                // generate all other numbers that result in the same output because of integer division
+                for k in 0..=8 {
+                    if (num * 8 + k) / 8 == *num {
+                        next.push(num * 8 + k);
+                    }
+                }
+            }
+        }
+
+        // prepare next run with all generated numbers
+        inputs = next;
+    }
+    Some(result)
 }
 
 fn run(ins: &Vec<Instructions>, reg_a_orig: u64) -> Vec<u64> {
